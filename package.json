@@ -1,0 +1,19 @@
+{
+  "name": "shopify-claude-assistant",
+  "version": "1.0.0",
+  "description": "Multi-store Shopify management assistant powered by Anthropic Claude API tooling, automated catalog sync, and Liquid theme generators",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "demo": "bun run src/cli.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.5.4"
+  }
+}
