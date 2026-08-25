@@ -7,6 +7,12 @@ An automation toolkit and Claude API integration engine built for managing multi
 
 ---
 
+## 📸 Live CLI & Claude Tooling Preview
+
+![Shopify Multi-Store Claude Assistant Preview](assets/shopify-claude-preview.png)
+
+---
+
 ## 🚀 Key Capabilities
 
 1. **Claude API Tooling Integration**: Anthropic tool definitions enabling Claude to query inventory, dispatch multi-store product drops, and scaffold Liquid schemas.

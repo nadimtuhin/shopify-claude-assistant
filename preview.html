@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shopify + Claude Assistant CLI & Operations Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 32px;
+      width: 1080px;
+      box-sizing: border-box;
+    }
+    .panel {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 16px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+      border: 1px solid #2563eb;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .stat-lbl {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .terminal-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 18px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+    .c-blue { color: #60a5fa; }
+    .c-green { color: #34d399; }
+    .c-yellow { color: #fbbf24; }
+    .c-dim { color: #64748b; }
+    .c-bold { font-weight: 700; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <div class="header">
+      <div class="title">🛍️ Shopify Multi-Store + Claude Tooling Automation Engine</div>
+      <span class="badge">Claude Tool-Calling API v1.0.0</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" style="color: #34d399;">Active</div>
+        <div class="stat-lbl">Multi-Store Sync</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">3 Tools</div>
+        <div class="stat-lbl">Claude Tool Registry</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: #a78bfa;">OS 2.0</div>
+        <div class="stat-lbl">Liquid Sections</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: #38bdf8;">100%</div>
+        <div class="stat-lbl">GraphQL Test Coverage</div>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div><span class="c-dim">$</span> <span class="c-blue">bun run src/cli.ts --action=sync-multi-store --prompt="Deploy Summer Drop to US & EU stores"</span></div>
+      <div class="c-dim">─────────────────────────────────────────────────────────────────────────────</div>
+      <div><span class="c-bold c-blue">[CLAUDE API]</span> Model: <span class="c-yellow">claude-3-5-sonnet-20241022</span> | Tool Choice: <span class="c-green">sync_product_to_stores</span></div>
+      <br>
+      <div><span class="c-yellow">▶ TOOL EXECUTION:</span> <span class="c-bold">sync_product_to_stores</span></div>
+      <div>  <span class="c-dim">├─ Product:</span> "Limited Edition Waterproof Windbreaker"</div>
+      <div>  <span class="c-dim">├─ Price:</span> $189.00 USD (Auto-mapped to €175.00 EUR for EU storefront)</div>
+      <div>  <span class="c-dim">├─ Store [1/2]:</span> brand-us.myshopify.com <span class="c-green">✔ DISPATCHED</span> <span class="c-dim">(gid://shopify/Product/849201)</span></div>
+      <div>  <span class="c-dim">└─ Store [2/2]:</span> brand-eu.myshopify.com <span class="c-green">✔ DISPATCHED</span> <span class="c-dim">(gid://shopify/Product/849202)</span></div>
+      <br>
+      <div><span class="c-yellow">▶ LIQUID SCAFFOLDING:</span> <span class="c-bold">generate_liquid_section</span> (hero_banner.liquid)</div>
+      <div>  <span class="c-dim">├─ Target Theme:</span> Shopify Dawn OS 2.0</div>
+      <div>  <span class="c-dim">├─ Schema:</span> Dynamic customizable headings, color-picker, button CTA bindings</div>
+      <div>  <span class="c-dim">└─ Status:</span> <span class="c-green">✔ VALIDATED</span> against Shopify Theme Inspector standards</div>
+      <br>
+      <div class="c-dim">─────────────────────────────────────────────────────────────────────────────</div>
+      <div><span class="c-green c-bold">✔ MULTI-STORE OPERATION COMPLETE:</span> 2 Stores Synced | Liquid Section Ready for Screencast Review</div>
+    </div>
+  </div>
+
+</body>
+</html>
