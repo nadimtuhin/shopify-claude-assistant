@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const ShopifyStoreConfigSchema = z.object({
   storeId: z.string(),
-  shopDomain: z.string(),
+  // Admin API calls must target the shop's canonical *.myshopify.com host; anything
+  // else would send the admin access token to a third-party server.
+  shopDomain: z
+    .string()
+    .regex(/^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/, "shopDomain must be a <shop>.myshopify.com hostname"),
   adminAccessToken: z.string(),
   currency: z.string().default("USD")
 });
@@ -46,7 +50,7 @@ export const SHOPIFY_CLAUDE_TOOLS: ClaudeToolDefinition[] = [
     input_schema: {
       type: "object",
       properties: {
-        sectionType: { type: "string", enum: ["hero_banner", "product_grid", "faq_accordion", "testimonial_slider"] },
+        sectionType: { type: "string", enum: ["hero_banner", "faq_accordion"] },
         themeTarget: { type: "string", default: "Dawn" }
       },
       required: ["sectionType"]
