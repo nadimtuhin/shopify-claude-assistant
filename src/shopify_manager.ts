@@ -1,5 +1,15 @@
 import type { ProductDraft, ShopifyStoreConfig } from "./types";
 
+export const DEFAULT_DISPATCH_TIMEOUT_MS = 30_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Dispatch to ${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 export class MultiStoreShopifyManager {
   private stores: Map<string, ShopifyStoreConfig> = new Map();
 
@@ -17,9 +27,11 @@ export class MultiStoreShopifyManager {
 
   async dispatchProductToStores(
     draft: ProductDraft,
-    clientMock?: (domain: string, payload: any) => Promise<{ id: string; success: boolean }>
-  ): Promise<{ storeId: string; success: boolean; shopifyProductId?: string }[]> {
-    const results: { storeId: string; success: boolean; shopifyProductId?: string }[] = [];
+    clientMock?: (domain: string, payload: any) => Promise<{ id: string; success: boolean }>,
+    options: { timeoutMs?: number } = {}
+  ): Promise<{ storeId: string; success: boolean; shopifyProductId?: string; error?: string }[]> {
+    const timeoutMs = options.timeoutMs ?? DEFAULT_DISPATCH_TIMEOUT_MS;
+    const results: { storeId: string; success: boolean; shopifyProductId?: string; error?: string }[] = [];
 
     for (const targetStoreId of draft.targetStores) {
       const store = this.stores.get(targetStoreId);
@@ -29,12 +41,22 @@ export class MultiStoreShopifyManager {
       }
 
       if (clientMock) {
-        const res = await clientMock(store.shopDomain, draft);
-        results.push({
-          storeId: store.storeId,
-          success: res.success,
-          shopifyProductId: res.id
-        });
+        // One failing or hung store must not abort the dispatch to the others,
+        // otherwise products already created elsewhere go unreported.
+        try {
+          const res = await withTimeout(clientMock(store.shopDomain, draft), timeoutMs, store.shopDomain);
+          results.push({
+            storeId: store.storeId,
+            success: res.success,
+            shopifyProductId: res.id
+          });
+        } catch (err) {
+          results.push({
+            storeId: store.storeId,
+            success: false,
+            error: err instanceof Error ? err.message : String(err)
+          });
+        }
       } else {
         // Default simulated dispatch
         results.push({
@@ -80,16 +102,35 @@ export class MultiStoreShopifyManager {
       case "faq_accordion":
         return `{% comment %} Claude-Generated FAQ Accordion {% endcomment %}
 <div class="faq-accordion page-width">
-  <h2>{{ section.settings.title | default: 'Frequently Asked Questions' }}</h2>
+  <h2>{{ section.settings.title | default: 'Frequently Asked Questions' | escape }}</h2>
   <div class="faq-list">
     {% for block in section.blocks %}
-      <details class="faq-item">
-        <summary>{{ block.settings.question }}</summary>
+      <details class="faq-item" {{ block.shopify_attributes }}>
+        <summary>{{ block.settings.question | escape }}</summary>
         <div class="faq-answer">{{ block.settings.answer }}</div>
       </details>
     {% endfor %}
   </div>
-</div>`;
+</div>
+{% schema %}
+{
+  "name": "Claude FAQ Accordion",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Frequently Asked Questions" }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Answer</p>" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Claude FAQ Accordion" }]
+}
+{% endschema %}`;
       default:
         return `<div class="custom-section"><h3>Custom Liquid Section</h3></div>`;
     }
